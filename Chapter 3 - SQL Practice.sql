@@ -94,4 +94,67 @@ WHERE CustomerID = 13;
 DELETE FROM SEMINAR_CUSTOMER
 WHERE CustomerID = 13;
 
+#edit the SEMINAR_CUSTOMER table change the Foreign Key of CustomerID
+#to Cascading Deletes - This deletes a customer and their enrollments
+#You have to go to the table information and change the on delete information for Customer
+#from RESTRICT to CASCADE
 
+#Add Jill Summers back as a Customer
+INSERT INTO CUSTOMER VALUES (13, 'Summers', 'Jill', 'jill.summers@gmail.com',
+							 NULL, '724-555-0011', '22 Elm St', 
+							'Greensburg', 'PA', '15601-0001');
+
+#Add Jill Summers enrollments
+INSERT INTO SEMINAR_CUSTOMER VALUES (1,13);
+INSERT INTO SEMINAR_CUSTOMER VALUES (7,13);
+
+#Show seminar enrollments for Jill
+SELECT * 
+FROM SEMINAR_CUSTOMER 
+WHERE CustomerID = 13;
+#You could use a subquery here to pull these enrollments up by her name
+SELECT *
+FROM SEMINAR_CUSTOMER
+WHERE CustomerID = (SELECT CustomerID
+					FROM CUSTOMER
+					WHERE FirstName = 'Jill' AND LastName = 'Summers');
+#Remember you can use = because there is only 1 Jill Summers but if there was more then 1 then
+#you should use IN
+
+#Remove Jill from the CUSTOMER table again
+DELETE FROM CUSTOMER
+WHERE CustomerID = 13; 
+#This works now due to the cascading deleting 
+
+#Delete Seminar 7
+DELETE FROM SEMINAR
+WHERE SeminarID = 7;
+#Here we seen an issue with the customers who are enrolled in this seminar
+#The DBMS does not let you do this
+
+#Show the details for invoice 35001
+SELECT *
+FROM INVOICE
+WHERE InvoiceNumber = 35001;
+
+#Show the detials for invoice 35001 and the LINE_ITEM data
+SELECT *
+FROM INVOICE, LINE_ITEM
+WHERE INVOICE.InvoiceNumber = 35001
+AND INVOICE.InvoiceNumber = LINE_ITEM.InvoiceNumber;
+
+#SHow the detials of invoice 35001 and its LINE_ITEM including PRODUCT description
+SELECT *
+FROM INVOICE, LINE_ITEM, PRODUCT
+WHERE INVOICE.InvoiceNumber = 35001
+AND INVOICE.InvoiceNumber = LINE_ITEM.InvoiceNumber
+AND PRODUCT.ProductNumber = LINE_ITEM.ProductNumber;
+
+#Show only the LineNumber, ProductNumber, ProductDescription, Quantity,
+#UnitPrice, and Total
+SELECT LINE_ITEM.LineNumber, LINE_ITEM.ProductNumber, ProductDescription,
+LINE_ITEM.Quantity, LINE_ITEM.UnitPrice, LINE_ITEM.Total
+FROM INVOICE, LINE_ITEM, PRODUCT
+WHERE INVOICE.InvoiceNumber = 35001
+AND INVOICE.InvoiceNumber = LINE_ITEM.InvoiceNumber
+AND PRODUCT.ProductNumber = LINE_ITEM.ProductNumber;
